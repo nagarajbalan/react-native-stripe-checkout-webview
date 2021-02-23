@@ -73,7 +73,7 @@ const StripeCheckoutWebView = (props: Props) => {
     const { nativeEvent } = syntheticEvent;
     const { url: currentUrl } = nativeEvent;
     /** Check and handle checkout state: success */
-    if (currentUrl.includes('sc_checkout=success')) {
+    if (currentUrl.includes('sc_checkout=success') || currentUrl.includes('session_id=')) {
       const checkoutSessionIdKey = 'sc_sid=';
       const checkoutSessionId = currentUrl
         .substring(currentUrl.indexOf(checkoutSessionIdKey), currentUrl.length)
@@ -88,7 +88,7 @@ const StripeCheckoutWebView = (props: Props) => {
       return;
     }
     /** Check and handle checkout state: cancel */
-    if (currentUrl.includes('sc_checkout=cancel')) {
+    if (currentUrl.includes('sc_checkout=cancel') || currentUrl.includes('cancel=true')) {
       setCompleted(true);
       if (onCancel) {
         onCancel(props);
