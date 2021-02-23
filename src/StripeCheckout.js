@@ -73,7 +73,7 @@ const StripeCheckoutWebView = (props: Props) => {
     const { nativeEvent } = syntheticEvent;
     const { url: currentUrl } = nativeEvent;
     /** Check and handle checkout state: success */
-    if (currentUrl.includes('sc_checkout=success') || currentUrl.includes('session_id=')) {
+    if (currentUrl.includes('sc_checkout=success')) {
       const checkoutSessionIdKey = 'sc_sid=';
       const checkoutSessionId = currentUrl
         .substring(currentUrl.indexOf(checkoutSessionIdKey), currentUrl.length)
@@ -87,13 +87,37 @@ const StripeCheckoutWebView = (props: Props) => {
       }
       return;
     }
+
+    if (currentUrl.includes('session_id=')) {
+      const checkoutSessionIdKey = 'session_id=';
+      const checkoutSessionId = currentUrl
+        .substring(currentUrl.indexOf(checkoutSessionIdKey), currentUrl.length)
+        /** remove key */
+        .replace(checkoutSessionIdKey, '')
+        /** remove extra trailing slash */
+        .replace('/', '');
+      setCompleted(true);
+      if (onSuccess) {
+        onSuccess({ ...props, checkoutSessionId });
+      }
+      return;
+    }
+
     /** Check and handle checkout state: cancel */
-    if (currentUrl.includes('sc_checkout=cancel') || currentUrl.includes('cancel=true')) {
+    if (currentUrl.includes('sc_checkout=cancel')) {
       setCompleted(true);
       if (onCancel) {
         onCancel(props);
       }
     }
+
+    if (currentUrl.includes('cancel=true')) {
+      setCompleted(true);
+      if (onCancel) {
+        onCancel(props);
+      }
+    }
+
     /** call webViewProps.onLoadStart */
     if (webViewProps && webViewProps.onLoadStart) {
       webViewProps.onLoadStart(syntheticEvent);
